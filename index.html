@@ -203,29 +203,31 @@
         return array;
     }
 
-     const questionsOriginal = [
-            { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndex: 1 },
-            { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndex: 2 },
-            { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndex: 2 },
-            { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndex: 3 },
-            { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndex: 1 },
-            { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndex: 2 },
-            { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndex: 0 },
-            { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndex: 3 },
-            { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndex: 1 },
-            { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [0, 2] },
-            { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
-        ];
+   const questionsOriginal = [
+    { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndexes: [1] },
+    { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndexes: [2] },
+    { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndexes: [2] },
+    { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndexes: [3] },
+    { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndexes: [1] },
+    { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndexes: [2] },
+    { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndexes: [0] },
+    { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndexes: [3] },
+    { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndexes: [1] },
+    { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [0, 2] },
+    { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
+];
+
 
         let questions = JSON.parse(JSON.stringify(questionsOriginal));
         questions = shuffle(questions);
         questions.forEach(q => {
-            let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
-            answersWithIndex = shuffle(answersWithIndex);
-            q.answers = answersWithIndex.map(item => item.ans);
-            const originalCorrect = Array.isArray(q.correctIndexes) ? q.correctIndexes : [q.correctIndex];
-            q.correctIndexes = originalCorrect.map(origIdx => answersWithIndex.findIndex(item => item.idx === origIdx));
-        });
+    let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
+    answersWithIndex = shuffle(answersWithIndex);
+    q.answers = answersWithIndex.map(item => item.ans);
+    q.correctIndexes = q.correctIndexes.map(origIdx => 
+        answersWithIndex.findIndex(item => item.idx === origIdx)
+    );
+});
 
         let current = 0;
         let wrongCount = 0;
