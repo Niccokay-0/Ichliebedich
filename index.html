@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Mobile Web App Capabilities -->
+
+    <!-- Mobile Web App Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Ich liebe dich ♡">
@@ -12,10 +12,8 @@
 
     <title>Ich liebe dich ♡</title>
 
-    <!-- iOS Icon -->
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="us.png">
-
-    <!-- Android Icon & Web Manifest -->
     <link rel="icon" type="image/png" href="us.png">
     <link rel="shortcut icon" href="us.png">
     <link rel="manifest" href="manifest.json">
@@ -44,7 +42,6 @@
             transition: box-shadow 0.5s ease;
         }
 
-        /* Feedback glow animations */
         .correct-glow {
             box-shadow: 0 0 30px 10px #00ff88 !important;
         }
@@ -53,31 +50,10 @@
             box-shadow: 0 0 30px 10px #ff2e63 !important;
         }
 
-        /* Shake animation */
         @keyframes shake {
-            0% {
-                transform: translateX(0);
-            }
-
-            20% {
-                transform: translateX(-60px);
-            }
-
-            40% {
-                transform: translateX(60px);
-            }
-
-            60% {
-                transform: translateX(-60px);
-            }
-
-            80% {
-                transform: translateX(60px);
-            }
-
-            100% {
-                transform: translateX(0);
-            }
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-60px); }
+            40%, 80% { transform: translateX(60px); }
         }
 
         .shake {
@@ -105,14 +81,14 @@
             transition: all 0.2s ease-in-out;
         }
 
-            .answers button:active {
-                box-shadow: 0 3px 0 #3e0e69, 0 4px 8px rgba(0, 0, 0, 0.3);
-                transform: translateY(3px);
-            }
+        .answers button:active {
+            box-shadow: 0 3px 0 #3e0e69, 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(3px);
+        }
 
-            .answers button:hover {
-                box-shadow: 0 6px 0 #3e0e69, 0 8px 15px rgba(0, 0, 0, 0.4), 0 0 12px 3px rgba(255, 255, 255, 0.8);
-            }
+        .answers button:hover {
+            box-shadow: 0 6px 0 #3e0e69, 0 8px 15px rgba(0, 0, 0, 0.4), 0 0 12px 3px rgba(255, 255, 255, 0.8);
+        }
 
         .result {
             font-size: 1.5rem;
@@ -134,41 +110,12 @@
             opacity: 0.9;
         }
 
-        .top-right {
-            top: 200px;
-            right: 500px;
-            transform: scale(4);
-        }
-
-        .bottom-left {
-            bottom: 200px;
-            left: 380px;
-            transform: scale(7);
-        }
-
-        .top-left {
-            top: 160px;
-            left: 400px;
-            transform: scale(4);
-        }
-
-        .bottom-right {
-            bottom: 140px;
-            right: 600px;
-            transform: scale(5);
-        }
-
-        .left-center {
-            top: 50%;
-            left: 500px;
-            transform: translateY(-50%) translateX(-30%) scale(4);
-        }
-
-        .right-center {
-            top: 50%;
-            right: 430px;
-            transform: translateY(-50%) translateX(-30%) scale(4);
-        }
+        .top-right { top: 200px; right: 500px; transform: scale(4); }
+        .bottom-left { bottom: 200px; left: 380px; transform: scale(7); }
+        .top-left { top: 160px; left: 400px; transform: scale(4); }
+        .bottom-right { bottom: 140px; right: 600px; transform: scale(5); }
+        .left-center { top: 50%; left: 500px; transform: translateY(-50%) translateX(-30%) scale(4); }
+        .right-center { top: 50%; right: 430px; transform: translateY(-50%) translateX(-30%) scale(4); }
     </style>
 </head>
 <body>
@@ -181,111 +128,100 @@
     <img src="Cats.gif" alt="Cats" class="extra-gif right-center">
 
     <div id="app">
-            <!-- Quiz Section -->
-    <div id="quiz">
-        <div class="question" id="question"></div>
-        <div class="answers" id="answers"></div>
-    </div>
-    <div id="result" style="display: none">
-        <div class="result" id="final-result">Thank you for completing the quiz!</div>
-        <div class="gif-container">
-            <img src="Celebrate.png" alt="Congratulations!">
+        <div id="quiz">
+            <div class="question" id="question"></div>
+            <div class="answers" id="answers"></div>
+        </div>
+        <div id="result" style="display: none">
+            <div class="result" id="final-result">Thank you for completing the quiz!</div>
+            <div class="gif-container">
+                <img src="Celebrate.png" alt="Congratulations!">
+            </div>
         </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
 
-    const questionsOriginal = [
-        { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndexes: [1] },
-        { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndexes: [2] },
-        { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndexes: [2] },
-        { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndexes: [3] },
-        { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndexes: [1] },
-        { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndexes: [2] },
-        { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndexes: [0] },
-        { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndexes: [3] },
-        { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndexes: [1] },
-        { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [2] },
-        { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
-    ];
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const questionsData = [
+            { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correct: [1] },
+            { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correct: [2] },
+            { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correct: [2] },
+            { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correct: [3] },
+            { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correct: [1] },
+            { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correct: [2] },
+            { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correct: [0] },
+            { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correct: [3] },
+            { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correct: [1] },
+            { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correct: [2] },
+            { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correct: [0, 1] }
+        ];
 
-    const confetti = window.confetti || function () {};
-    let questions = JSON.parse(JSON.stringify(questionsOriginal));
-    questions = shuffle(questions);
-    questions.forEach(q => {
-        const shuffled = shuffle(q.answers.map((ans, i) => ({ ans, index: i })));
-        q.answers = shuffled.map(item => item.ans);
-        q.correctIndexes = q.correctIndexes.map(originalIdx =>
-            shuffled.findIndex(item => item.index === originalIdx)
-        );
-    });
+        const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+        let questions = shuffle(questionsData).map(q => {
+            const mapped = shuffle(q.answers.map((ans, i) => ({ ans, index: i })));
+            return {
+                question: q.question,
+                answers: mapped.map(item => item.ans),
+                correctIndexes: q.correct.map(origIdx =>
+                    mapped.findIndex(item => item.index === origIdx)
+                )
+            };
+        });
 
-    let current = 0;
-    let wrongCount = 0;
+        let current = 0;
+        let wrongCount = 0;
 
-    function renderQuestion() {
-        if (current >= questions.length) {
-            document.getElementById("quiz").style.display = "none";
-            document.getElementById("result").style.display = "block";
-
-            const feedback = wrongCount >= 5
-                ? `Have you even tried? -- ${wrongCount} wrong out of ${questions.length}.`
-                : "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
-
-            document.getElementById("final-result").textContent = feedback;
-            return;
-        }
-
-        const q = questions[current];
         const questionDiv = document.getElementById("question");
         const answersDiv = document.getElementById("answers");
+        const appDiv = document.getElementById("app");
 
-        questionDiv.textContent = q.question;
-        answersDiv.innerHTML = "";
+        function renderQuestion() {
+            if (current >= questions.length) {
+                document.getElementById("quiz").style.display = "none";
+                document.getElementById("result").style.display = "block";
 
-        q.answers.forEach((answer, index) => {
-            const btn = document.createElement("button");
-            btn.textContent = answer;
+                const message = wrongCount >= 5
+                    ? `Have you even tried? -- ${wrongCount} wrong out of ${questions.length}.`
+                    : "HAPPY BIRTHDAY I LOVE YOU SO MUCH!! 💖";
 
-            btn.onclick = () => {
-                const isCorrect = q.correctIndexes.includes(index);
-                const app = document.getElementById("app");
+                document.getElementById("final-result").textContent = message;
+                return;
+            }
 
-                // Disable all buttons
-                Array.from(answersDiv.children).forEach(button => button.disabled = true);
+            const q = questions[current];
+            questionDiv.textContent = q.question;
+            answersDiv.innerHTML = "";
 
-                if (isCorrect) {
-                    btn.style.background = "#2e7d32";
-                    app.classList.add("correct-glow");
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                } else {
-                    wrongCount++;
-                    btn.style.background = "#c62828";
-                    app.classList.add("wrong-glow");
-                    app.classList.add("shake");
-                }
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = answer;
+                btn.onclick = () => handleAnswer(index, q.correctIndexes, btn);
+                answersDiv.appendChild(btn);
+            });
+        }
 
-                setTimeout(() => {
-                    app.classList.remove("correct-glow", "wrong-glow", "shake");
-                    current++;
-                    renderQuestion();
-                }, 700);
-            };
+        function handleAnswer(index, correctIndexes, btn) {
+            const isCorrect = correctIndexes.includes(index);
+            [...answersDiv.children].forEach(b => b.disabled = true);
 
-            answersDiv.appendChild(btn);
-        });
-    }
+            if (isCorrect) {
+                btn.style.background = "#2e7d32";
+                appDiv.classList.add("correct-glow");
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else {
+                btn.style.background = "#c62828";
+                wrongCount++;
+                appDiv.classList.add("wrong-glow", "shake");
+            }
 
-    renderQuestion();
-</script>
+            setTimeout(() => {
+                appDiv.classList.remove("correct-glow", "wrong-glow", "shake");
+                current++;
+                renderQuestion();
+            }, 700);
+        }
 
+        renderQuestion();
+    </script>
 </body>
 </html>
