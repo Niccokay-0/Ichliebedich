@@ -203,153 +203,99 @@
         return array;
     }
 
-    const questionsOriginal = [
-        {
-            question: "How much do you love me?",
-            answers: ["0", "JA! UNENDLICH JA!", "no", "1000"],
-            correctIndex: 1
-        },
-        {
-            question: "Which is my favourite colour?",
-            answers: ["red", "gelb", "pupor", "pinky"],
-            correctIndex: 2
-        },
-        {
-            question: "WHO is my favourite Artist???",
-            answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"],
-            correctIndex: 2
-        },
-        {
-            question: "Who is the my Favourite Person?",
-            answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"],
-            correctIndex: 3
-        },
-        {
-            question: "Welche deiner Katzen ist meine Lieblingskatze?",
-            answers: ["Zelda", "Link"],
-            correctIndex: 1
-        },
-        {
-            question: "Which is my favourite album EVER?",
-            answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"],
-            correctIndex: 2
-        },
-        {
-            question: "If I were an animal, what would I be?",
-            answers: ["KITTY", "just a cat", "doggo", "foca :D"],
-            correctIndex: 0
-        },
-        {
-            question: "What food do I never say no to?",
-            answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"],
-            correctIndex: 3
-        },
-        {
-            question: "If I had one brain cell left, what would I use it for?",
-            answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"],
-            correctIndex: 1
-        },
-        {
-            question: "What is the speed of light?",
-            answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"],
-            correctIndexes: [0, 2]
-        },
-        {
-            question: "are you the loml?",
-            answers: ["yes of course", "fuck yes", "Fuck You"],
-            correctIndexes: [0, 1]
-        }
-    ];
+     const questionsOriginal = [
+            { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndex: 1 },
+            { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndex: 2 },
+            { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndex: 2 },
+            { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndex: 3 },
+            { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndex: 1 },
+            { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndex: 2 },
+            { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndex: 0 },
+            { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndex: 3 },
+            { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndex: 1 },
+            { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [0, 2] },
+            { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
+        ];
 
-    let questions = JSON.parse(JSON.stringify(questionsOriginal));
-    questions = shuffle(questions);
-    questions.forEach(q => {
-        let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
-        answersWithIndex = shuffle(answersWithIndex);
-        q.answers = answersWithIndex.map(item => item.ans);
-
-        // Normalize to correctIndexes
-        const originalCorrect = Array.isArray(q.correctIndexes) ? q.correctIndexes : [q.correctIndex];
-        q.correctIndexes = originalCorrect.map(origIdx => {
-            return answersWithIndex.findIndex(item => item.idx === origIdx);
+        let questions = JSON.parse(JSON.stringify(questionsOriginal));
+        questions = shuffle(questions);
+        questions.forEach(q => {
+            let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
+            answersWithIndex = shuffle(answersWithIndex);
+            q.answers = answersWithIndex.map(item => item.ans);
+            const originalCorrect = Array.isArray(q.correctIndexes) ? q.correctIndexes : [q.correctIndex];
+            q.correctIndexes = originalCorrect.map(origIdx => answersWithIndex.findIndex(item => item.idx === origIdx));
         });
-    });
 
-    let current = 0;
-    let wrongCount = 0;
+        let current = 0;
+        let wrongCount = 0;
 
-    function renderQuestion() {
-        if (current >= questions.length) {
-            document.getElementById("quiz").style.display = "none";
-            document.getElementById("result").style.display = "block";
+        function renderQuestion() {
+            if (current >= questions.length) {
+                document.getElementById("quiz").style.display = "none";
+                document.getElementById("result").style.display = "block";
 
-                      let feedback = "";
-            switch (wrongCount) {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
-                    break;
-                case 5:
-                case 6:
-                    feedback = "Have you even tried?";
-                    break;
-                default:
-                    feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
-            }
-            
-            // Show feedback with error count only if wrongCount >= 5
-            if (wrongCount >= 5) {
-                document.getElementById("final-result").textContent = ${feedback} -- ${wrongCount} wrong out of ${questions.length}.;
-            } else {
-                document.getElementById("final-result").textContent = ${feedback};
-            }
-
-            document.getElementById("final-result").textContent = wrongCount
-                ? ${feedback} -- ${wrongCount} wrong out of ${questions.length}.
-                : feedback;
-
-            return;
-        }
-
-        const q = questions[current];
-        document.getElementById("question").textContent = q.question;
-        const answersDiv = document.getElementById("answers");
-        answersDiv.innerHTML = "";
-
-        q.answers.forEach((answer, index) => {
-            const btn = document.createElement("button");
-            btn.textContent = answer;
-
-            btn.onclick = () => {
-                const isCorrect = q.correctIndexes.includes(index);
-
-                if (!isCorrect) {
-                    wrongCount++;
-                    btn.style.background = "#c62828";
-                    btn.parentElement.parentElement.classList.add("shake");
-                    setTimeout(() => {
-                        btn.parentElement.parentElement.classList.remove("shake");
-                        current++;
-                        renderQuestion();
-                    }, 600);
-                } else {
-                    btn.style.background = "#2e7d32";
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                    setTimeout(() => {
-                        current++;
-                        renderQuestion();
-                    }, 600);
+                let feedback = "";
+                switch (wrongCount) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
+                        break;
+                    case 5:
+                    case 6:
+                        feedback = "Have you even tried?";
+                        break;
+                    default:
+                        feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
                 }
-            };
 
-            answersDiv.appendChild(btn);
-        });
-    }
+                // Only show wrong count if >= 5
+                const message = wrongCount >= 5
+                    ? `${feedback} -- ${wrongCount} wrong out of ${questions.length}.`
+                    : feedback;
 
-    const confetti = window.confetti || function () {};
-    renderQuestion();
-</script>
+                document.getElementById("final-result").textContent = message;
+                return;
+            }
+
+            const q = questions[current];
+            document.getElementById("question").textContent = q.question;
+            const answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = answer;
+
+                btn.onclick = () => {
+                    const isCorrect = q.correctIndexes.includes(index);
+                    if (!isCorrect) {
+                        wrongCount++;
+                        btn.style.background = "#c62828";
+                        btn.parentElement.parentElement.classList.add("shake");
+                        setTimeout(() => {
+                            btn.parentElement.parentElement.classList.remove("shake");
+                            current++;
+                            renderQuestion();
+                        }, 600);
+                    } else {
+                        btn.style.background = "#2e7d32";
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                        setTimeout(() => {
+                            current++;
+                            renderQuestion();
+                        }, 600);
+                    }
+                };
+
+                answersDiv.appendChild(btn);
+            });
+        }
+
+        const confetti = window.confetti || function () {};
+        renderQuestion();
+    </script>
 </body>
 </html>
