@@ -203,101 +203,89 @@
         return array;
     }
 
-   const questionsOriginal = [
-    { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndexes: [1] },
-    { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndexes: [2] },
-    { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndexes: [2] },
-    { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndexes: [3] },
-    { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndexes: [1] },
-    { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndexes: [2] },
-    { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndexes: [0] },
-    { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndexes: [3] },
-    { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndexes: [1] },
-    { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [0, 2] },
-    { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
-];
+    const questionsOriginal = [
+        { question: "How much do you love me?", answers: ["0", "JA! UNENDLICH JA!", "no", "1000"], correctIndexes: [1] },
+        { question: "Which is my favourite colour?", answers: ["red", "gelb", "pupor", "pinky"], correctIndexes: [2] },
+        { question: "WHO is my favourite Artist???", answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"], correctIndexes: [2] },
+        { question: "Who is the my Favourite Person?", answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"], correctIndexes: [3] },
+        { question: "Welche deiner Katzen ist meine Lieblingskatze?", answers: ["Zelda", "Link"], correctIndexes: [1] },
+        { question: "Which is my favourite album EVER?", answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"], correctIndexes: [2] },
+        { question: "If I were an animal, what would I be?", answers: ["KITTY", "just a cat", "doggo", "foca :D"], correctIndexes: [0] },
+        { question: "What food do I never say no to?", answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"], correctIndexes: [3] },
+        { question: "If I had one brain cell left, what would I use it for?", answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"], correctIndexes: [1] },
+        { question: "What is the speed of light?", answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"], correctIndexes: [0, 2] },
+        { question: "are you the loml?", answers: ["yes of course", "fuck yes", "Fuck You"], correctIndexes: [0, 1] }
+    ];
 
+    const confetti = window.confetti || function () {};
+    let questions = JSON.parse(JSON.stringify(questionsOriginal));
+    questions = shuffle(questions);
+    questions.forEach(q => {
+        const shuffled = shuffle(q.answers.map((ans, i) => ({ ans, index: i })));
+        q.answers = shuffled.map(item => item.ans);
+        q.correctIndexes = q.correctIndexes.map(originalIdx =>
+            shuffled.findIndex(item => item.index === originalIdx)
+        );
+    });
 
-        let questions = JSON.parse(JSON.stringify(questionsOriginal));
-        questions = shuffle(questions);
-        questions.forEach(q => {
-    let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
-    answersWithIndex = shuffle(answersWithIndex);
-    q.answers = answersWithIndex.map(item => item.ans);
-    q.correctIndexes = q.correctIndexes.map(origIdx => 
-        answersWithIndex.findIndex(item => item.idx === origIdx)
-    );
-});
+    let current = 0;
+    let wrongCount = 0;
 
-        let current = 0;
-        let wrongCount = 0;
+    function renderQuestion() {
+        if (current >= questions.length) {
+            document.getElementById("quiz").style.display = "none";
+            document.getElementById("result").style.display = "block";
 
-        function renderQuestion() {
-            if (current >= questions.length) {
-                document.getElementById("quiz").style.display = "none";
-                document.getElementById("result").style.display = "block";
+            const feedback = wrongCount >= 5
+                ? `Have you even tried? -- ${wrongCount} wrong out of ${questions.length}.`
+                : "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
 
-                let feedback = "";
-                switch (wrongCount) {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                        feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
-                        break;
-                    case 5:
-                    case 6:
-                        feedback = "Have you even tried?";
-                        break;
-                    default:
-                        feedback = "HAPPY BIRTHDAY I LOVE YOU SO MUCH!!";
-                }
-
-                // Only show wrong count if >= 5
-                const message = wrongCount >= 5
-                    ? `${feedback} -- ${wrongCount} wrong out of ${questions.length}.`
-                    : feedback;
-
-                document.getElementById("final-result").textContent = message;
-                return;
-            }
-
-            const q = questions[current];
-            document.getElementById("question").textContent = q.question;
-            const answersDiv = document.getElementById("answers");
-            answersDiv.innerHTML = "";
-
-            q.answers.forEach((answer, index) => {
-                const btn = document.createElement("button");
-                btn.textContent = answer;
-
-                btn.onclick = () => {
-                    const isCorrect = q.correctIndexes.includes(index);
-                    if (!isCorrect) {
-                        wrongCount++;
-                        btn.style.background = "#c62828";
-                        btn.parentElement.parentElement.classList.add("shake");
-                        setTimeout(() => {
-                            btn.parentElement.parentElement.classList.remove("shake");
-                            current++;
-                            renderQuestion();
-                        }, 600);
-                    } else {
-                        btn.style.background = "#2e7d32";
-                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                        setTimeout(() => {
-                            current++;
-                            renderQuestion();
-                        }, 600);
-                    }
-                };
-
-                answersDiv.appendChild(btn);
-            });
+            document.getElementById("final-result").textContent = feedback;
+            return;
         }
 
-        const confetti = window.confetti || function () {};
-        renderQuestion();
-    </script>
+        const q = questions[current];
+        const questionDiv = document.getElementById("question");
+        const answersDiv = document.getElementById("answers");
+
+        questionDiv.textContent = q.question;
+        answersDiv.innerHTML = "";
+
+        q.answers.forEach((answer, index) => {
+            const btn = document.createElement("button");
+            btn.textContent = answer;
+
+            btn.onclick = () => {
+                const isCorrect = q.correctIndexes.includes(index);
+                const app = document.getElementById("app");
+
+                // Disable all buttons
+                Array.from(answersDiv.children).forEach(button => button.disabled = true);
+
+                if (isCorrect) {
+                    btn.style.background = "#2e7d32";
+                    app.classList.add("correct-glow");
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                } else {
+                    wrongCount++;
+                    btn.style.background = "#c62828";
+                    app.classList.add("wrong-glow");
+                    app.classList.add("shake");
+                }
+
+                setTimeout(() => {
+                    app.classList.remove("correct-glow", "wrong-glow", "shake");
+                    current++;
+                    renderQuestion();
+                }, 700);
+            };
+
+            answersDiv.appendChild(btn);
+        });
+    }
+
+    renderQuestion();
+</script>
+
 </body>
 </html>
