@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Ich liebe dich ♡</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background: url('background.gif') center/cover no-repeat fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app {
+            background: linear-gradient(5deg, #6a1b9a, #12002f);
+            border-radius: 16px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            z-index: 1;
+            transition: box-shadow 0.5s ease;
+        }
+
+        /* Feedback glow animations */
+        .correct-glow {
+            box-shadow: 0 0 30px 10px #00ff88 !important;
+        }
+
+        .wrong-glow {
+            box-shadow: 0 0 30px 10px #ff2e63 !important;
+        }
+
+        /* Shake animation */
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-60px);
+            }
+
+            40% {
+                transform: translateX(60px);
+            }
+
+            60% {
+                transform: translateX(-60px);
+            }
+
+            80% {
+                transform: translateX(60px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .shake {
+            animation: shake 0.4s ease;
+        }
+
+        .question {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .answers button {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(3deg, #d1b3ff, #6a1b9a);
+            color: white;
+            box-shadow: 0 6px 0 #3e0e69, 0 8px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease-in-out;
+        }
+
+            .answers button:active {
+                box-shadow: 0 3px 0 #3e0e69, 0 4px 8px rgba(0, 0, 0, 0.3);
+                transform: translateY(3px);
+            }
+
+            .answers button:hover {
+                box-shadow: 0 6px 0 #3e0e69, 0 8px 15px rgba(0, 0, 0, 0.4), 0 0 12px 3px rgba(255, 255, 255, 0.8);
+            }
+
+        .result {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .gif-container img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .corner-gif, .extra-gif {
+            transform: scale(3);
+            position: absolute;
+            width: 60px;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .top-right {
+            top: 200px;
+            right: 500px;
+            transform: scale(4);
+        }
+
+        .bottom-left {
+            bottom: 200px;
+            left: 380px;
+            transform: scale(7);
+        }
+
+        .top-left {
+            top: 160px;
+            left: 400px;
+            transform: scale(4);
+        }
+
+        .bottom-right {
+            bottom: 140px;
+            right: 600px;
+            transform: scale(5);
+        }
+
+        .left-center {
+            top: 50%;
+            left: 500px;
+            transform: translateY(-50%) translateX(-30%) scale(4);
+        }
+
+        .right-center {
+            top: 50%;
+            right: 430px;
+            transform: translateY(-50%) translateX(-30%) scale(4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative GIFs -->
+    <img src="Flowers.gif" alt="Flowers" class="corner-gif top-right">
+    <img src="Flowers1.gif" alt="Flowers1" class="corner-gif bottom-left">
+    <img src="Ramen.gif" alt="Ramen" class="extra-gif top-left">
+    <img src="Stars.gif" alt="Stars" class="extra-gif bottom-right">
+    <img src="Hearts.gif" alt="Hearts" class="extra-gif left-center">
+    <img src="Cats.gif" alt="Cats" class="extra-gif right-center">
+
+    <div id="app">
+        <!-- Quiz Section -->
+        <div id="quiz">
+            <div class="question" id="question"></div>
+            <div class="answers" id="answers"></div>
+        </div>
+        <div id="result" style="display: none">
+            <div class="result" id="final-result">Thank you for completing the quiz!</div>
+            <div class="gif-container">
+                <img src="celebrate.gif" alt="Congratulations!">
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        const questionsOriginal = [
+            {
+                question: "How much do you love me?",
+                answers: ["0", "JA! UNENDLICH JA!", "no", "1000"],
+                correctIndex: 1
+            },
+            {
+                question: "Which is my favourite colour?",
+                answers: ["red", "gelb", "pupor", "pinky"],
+                correctIndex: 2
+            },
+            {
+                question: "WHO is my favourite Artist???",
+                answers: ["Kanye nel prime", "Kendrick Lamar", "Frank Ocean", "Olivia Rodrigo"],
+                correctIndex: 2
+            },
+            {
+                question: "Who is the my Favourite Person?",
+                answers: ["IOIOIOIOIO", "Zelda", "Artù", "tu"],
+                correctIndex: 3
+            },
+            {
+                question: "Welche deiner Katzen ist meine Lieblingskatze?",
+                answers: ["Zelda", "Link"],
+                correctIndex: 1
+            },
+            {
+                question: "Which is my favourite album EVER?",
+                answers: ["DAMN.", "My Beautiful Dark Twisted Fantasy", "Blond", "Ye"],
+                correctIndex: 2
+            },
+            {
+                question: "If I were an animal, what would I be?",
+                answers: ["KITTY", "just a cat", "doggo", "foca :D"],
+                correctIndex: 0
+            },
+            {
+                question: "What food do I never say no to?",
+                answers: ["Ramen", "Mc", "Burrito", "Whatever you say beautiful"],
+                correctIndex: 3
+            },
+            {
+                question: "If I had one brain cell left, what would I use it for?",
+                answers: ["Eating", "Playing Minecraft", "Sleeping", "Complaining"],
+                correctIndex: 1
+            },
+            {
+                question: "What is the speed of light?",
+                answers: ["c", "343m/s", "299792458 m/s", "300924500 m/s"],
+                correctIndexess: [2,0]
+            },
+            {
+                question: "are you the loml?",
+                answers: ["yes of course", "fuck yes"],
+                correctIndexes: [0, 1]
+            }
+        ];
+
+        let questions = JSON.parse(JSON.stringify(questionsOriginal));
+        questions = shuffle(questions);
+        questions.forEach(q => {
+            let answersWithIndex = q.answers.map((ans, idx) => ({ ans, idx }));
+            answersWithIndex = shuffle(answersWithIndex);
+            q.answers = answersWithIndex.map(item => item.ans);
+            if (Array.isArray(q.correctIndexes)) {
+                q.correctIndexes = q.correctIndexes.map(origIdx => {
+                    return answersWithIndex.findIndex(item => item.idx === origIdx);
+                });
+            } else {
+                q.correctIndex = answersWithIndex.findIndex(item => item.idx === q.correctIndex);
+            }
+        });
+
+        let current = 0;
+        let wrongCount = 0;
+
+        function renderQuestion() {
+            if (current >= questions.length) {
+                document.getElementById("quiz").style.display = "none";
+                document.getElementById("result").style.display = "block";
+
+                let feedback = "";
+                switch (wrongCount) {
+                    case 1:
+                        feedback = "Good but CAN BE BETTER";
+                        break;
+                    case 2:
+                        feedback = "OUCH!!!";
+                        break;
+                    case 3:
+                        feedback = "Okay, really?";
+                        break;
+                    case 4:
+                        feedback = "WOW, okay, i see";
+                        break;
+                    case 5:
+                    case 6:
+                        feedback = "Have you even tried?";
+                        break;
+                    default:
+                        feedback = "HAPPY BIRTDHAY I LOVE YOU SO MUCH!!";
+                }
+
+                if (wrongCount !== 0) {
+                    document.getElementById("final-result").textContent = `${feedback} -- ${wrongCount} wrong out of ${questions.length}.`;
+                    return;
+                }
+                document.getElementById("final-result").textContent = `${feedback}`;
+                return;
+            }
+
+            const q = questions[current];
+            document.getElementById("question").textContent = q.question;
+            const answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = answer;
+
+                btn.onclick = () => {
+                    const isCorrect = Array.isArray(q.correctIndexes)
+                        ? q.correctIndexes.includes(index)
+                        : index === q.correctIndex;
+
+                    if (!isCorrect) {
+                        wrongCount++;
+
+                        btn.style.background = "#c62828"; // red
+                        btn.parentElement.parentElement.classList.add("shake");
+                        setTimeout(() => {
+                            btn.parentElement.parentElement.classList.remove("shake");
+                            current++;
+                            renderQuestion();
+                        }, 600);
+                    } else {
+                        btn.style.background = "#2e7d32"; // green
+
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 }
+                        });
+
+                        setTimeout(() => {
+                            current++;
+                            renderQuestion();
+                        }, 600);
+                    }
+                };
+
+                answersDiv.appendChild(btn);
+            });
+        }
+        // Confetti fallback
+        const confetti = window.confetti || function () { };
+        renderQuestion();
+    </script>
